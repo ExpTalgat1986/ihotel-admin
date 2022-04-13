@@ -1,6 +1,5 @@
 <template>
   <q-layout view="hHh lpR fFf" class="bg-grey-1">
-    <app-header />
     <q-page-container>
       <router-view />
     </q-page-container>
@@ -9,10 +8,8 @@
 
 <script>
 import { defineComponent } from 'vue'
-import AppHeader from 'components/AppHeader'
 
 export default defineComponent({
-  name: 'MainLayout',
-  components: { AppHeader },
+  name: 'EmptyLayout',
 })
 </script>
