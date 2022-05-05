@@ -1,6 +1,6 @@
 <template>
   <q-page>
-    <h4 class="section-title q-mb-lg">Управление блюдами</h4>
+    <h4 class="section-title q-mb-lg">Управление доп. услугами</h4>
     <div class="text-right">
       <q-btn @click="openAddModal" color="primary" icon="add" label="Добавить" />
     </div>
@@ -65,7 +65,7 @@
         </q-card-section>
       </q-card>
     </div>
-    <div v-else class="text-center text-subtitle1">Отсутствуют блюда</div>
+    <div v-else class="text-center text-subtitle1">Отсутствуют доп. услуги</div>
 
     <q-dialog v-model="isAddModalVisible">
       <q-card>
@@ -139,7 +139,7 @@
               fill-mask="0"
               reverse-fill-mask
             />
-            <q-checkbox v-model="isAvailable" label="Блюдо в наличии?" />
+            <q-checkbox v-model="isAvailable" label="Услуга в наличии?" />
             <div>
               <q-btn label="Добавить" type="submit" color="primary" :loading="isLoading" />
             </div>
@@ -174,7 +174,7 @@
       <q-card>
         <q-card-section class="row items-center">
           <q-avatar icon="delete" color="negative" text-color="white" size="md" />
-          <span class="q-ml-sm">Вы действительно хотите удалить блюдо?</span>
+          <span class="q-ml-sm">Вы действительно хотите удалить услугу?</span>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -191,7 +191,7 @@ import { defineComponent, onMounted, ref } from 'vue'
 import { Api } from 'src/api'
 
 export default defineComponent({
-  name: 'FoodCategories',
+  name: 'AdServicesPage',
   setup() {
     const list = ref([])
     const categories = ref([])
@@ -259,7 +259,7 @@ export default defineComponent({
     const deleteItem = async () => {
       try {
         isLoading.value = true
-        await Api.deleteFood(pickedSectionId.value)
+        await Api.deleteAdService(pickedSectionId.value)
         list.value = list.value.filter((el) => el.id !== pickedSectionId.value)
         pickedSectionId.value = 0
         isDeleteModalVisible.value = false
@@ -282,7 +282,7 @@ export default defineComponent({
       if (image.value) formData.append('image', image.value)
       try {
         isLoading.value = true
-        const { data } = await Api.changeFood(formData, pickedSectionId.value)
+        const { data } = await Api.changeAdService(formData, pickedSectionId.value)
         const changedElementIdx = list.value.findIndex((el) => el.id === pickedSectionId.value)
         if (changedElementIdx !== -1) list.value.splice(changedElementIdx, 1, data)
         isChangeModalVisible.value = false
@@ -305,7 +305,7 @@ export default defineComponent({
       formData.append('image', image.value)
       try {
         isLoading.value = true
-        const { data } = await Api.addFood(formData)
+        const { data } = await Api.addAdService(formData)
         list.value.push(data)
         isAddModalVisible.value = false
       } finally {
@@ -313,8 +313,8 @@ export default defineComponent({
       }
     }
 
-    const getFoodCategories = async () => {
-      const { data } = await Api.getAllFoodCategories()
+    const getCategories = async () => {
+      const { data } = await Api.getAllAdServiceCategories()
       if (!data || !data.length) categories.value = []
       data.forEach((el) => {
         el.label = el.title_ru
@@ -324,8 +324,8 @@ export default defineComponent({
     }
 
     onMounted(async () => {
-      await getFoodCategories()
-      const { data } = await Api.getAllFoods()
+      await getCategories()
+      const { data } = await Api.getAllAdServices()
       list.value = data
     })
 

@@ -129,7 +129,7 @@ import { defineComponent, onMounted, ref } from 'vue'
 import { Api } from 'src/api'
 
 export default defineComponent({
-  name: 'NotificationsPage',
+  name: 'UsersPage',
   setup() {
     const list = ref([])
     const roles = ref([])
@@ -232,23 +232,3 @@ export default defineComponent({
   max-width: 250px;
 }
 </style>
-
-<!--<template>-->
-<!--  <q-page>-->
-<!--    <h4 class="section-title q-mb-lg">Управление пользователям</h4>-->
-<!--    &lt;!&ndash;    <div class="text-center text-subtitle1">Отсутствуют заказы</div>&ndash;&gt;-->
-<!--    &lt;!&ndash;    <img&ndash;&gt;-->
-<!--    &lt;!&ndash;      alt="Quasar logo"&ndash;&gt;-->
-<!--    &lt;!&ndash;      src="~assets/quasar-logo-vertical.svg" Это как искать изображения прямо в html&ndash;&gt;-->
-<!--    &lt;!&ndash;      style="width: 200px; height: 200px"&ndash;&gt;-->
-<!--    &lt;!&ndash;    />&ndash;&gt;-->
-<!--  </q-page>-->
-<!--</template>-->
-
-<!--<script>-->
-<!--import { defineComponent } from 'vue'-->
-
-<!--export default defineComponent({-->
-<!--  name: 'MainPage',-->
-<!--})-->
-<!--</script>-->

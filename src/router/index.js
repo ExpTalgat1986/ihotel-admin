@@ -1,9 +1,23 @@
 import { route } from 'quasar/wrappers'
 import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router'
 import routes from './routes'
-import { ADMIN_ID, getUser } from 'src/utils/user.utils'
+import { ADMIN_ID, getUser, MANAGER_ID } from 'src/utils/user.utils'
 
-const allowedRoutesForModerator = ['main.notifications', 'main.orders']
+const allowedRoutesForModerator = [
+  'main.notifications',
+  'main.orders',
+  'main.messages',
+  'main.notifications',
+  'main.food-categories',
+  'main.foods',
+  'main.hs-categories',
+  'main.hs',
+  'main.ad-services',
+  'main.ad-service-categories',
+  'main.layout',
+]
+
+const allowedRoutesForWaiters = ['main.messages', 'main.orders', 'main.layout']
 
 /*
  * If not building with SSR mode, you can
@@ -34,10 +48,12 @@ export default route(function (/* { store, ssrContext } */) {
   Router.beforeEach((to, from, next) => {
     if (to.name === 'auth.index') return next()
     const user = getUser()
-    if (!user) next({ name: 'auth.index' })
-    if (allowedRoutesForModerator.includes(to.name)) return next()
+    if (!user) return next({ name: 'auth.index' })
+    if (allowedRoutesForWaiters.includes(to.name)) return next()
     const isAdmin = user.role?.id === ADMIN_ID
     if (isAdmin) return next()
+    const isManager = user.role?.id === MANAGER_ID
+    if (isManager && allowedRoutesForModerator.includes(to.name)) return next()
     next({ name: 'auth.index' })
   })
 

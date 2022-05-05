@@ -12,6 +12,7 @@ const routes = [
   },
   {
     path: '/',
+    name: 'main.layout',
     component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', name: 'main.index', component: () => import('pages/MainPage/MainPage.vue') },
@@ -48,9 +49,29 @@ const routes = [
       },
       { path: 'orders', name: 'main.orders', component: () => import('pages/OrdersPage/OrdersPage.vue') },
       {
+        path: 'order-statuses',
+        name: 'main.order-statuses',
+        component: () => import('pages/OrderStatusesPage/OrderStatusesPage.vue'),
+      },
+      {
         path: 'hs-categories',
         name: 'main.hs-categories',
         component: () => import('pages/HsCategoriesRepo/HsCategoriesPage.vue'),
+      },
+      {
+        path: 'ad-service-categories',
+        name: 'main.ad-service-categories',
+        component: () => import('pages/AdServiceCategories/AdServiceCategoriesPage.vue'),
+      },
+      {
+        path: 'ad-services',
+        name: 'main.ad-services',
+        component: () => import('pages/AdServices/AdServicesPage.vue'),
+      },
+      {
+        path: 'messages',
+        name: 'main.messages',
+        component: () => import('pages/MessagesPage/MessagesPage.vue'),
       },
     ],
   },

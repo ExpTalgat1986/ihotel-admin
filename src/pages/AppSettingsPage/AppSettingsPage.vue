@@ -17,9 +17,10 @@
         <q-card-section>
           <div class="row items-center no-wrap">
             <div class="col">
-              <div class="text-center text-h6"> {{settings.application_name}} </div>
-              <div class="text-center"> {{settings.welcome_text}} </div>
-              <div class="text-center"> {{settings.concierge_phone}} </div>
+              <div class="text-center text-h6">{{ settings.application_name }}</div>
+              <div class="text-center">{{ settings.welcome_text }}</div>
+              <div class="text-center">{{ settings.concierge_phone }}</div>
+              <div class="text-center">{{ settings.concierge_telegram }}</div>
             </div>
           </div>
         </q-card-section>
@@ -54,6 +55,13 @@
               lazy-rules
               :rules="[(val) => (val && val.length === 14) || 'Введите корректный телефон']"
             />
+            <q-input
+              filled
+              v-model="settings.concierge_telegram"
+              label="Телеграм консьержа *"
+              lazy-rules
+              :rules="[(val) => (val && val.length > 1) || 'Введите корректный ник']"
+            />
             <q-file
               v-model="uploadingImage"
               label="Выберите изображение"
@@ -78,6 +86,7 @@
             <q-input filled v-model="applicationName" label="Название приложения *" />
             <q-input filled v-model="welcomeText" label="Приветственный текст *" />
             <q-input filled v-model="conciergePhone" label="Номер консьержа *" />
+            <q-input filled v-model="conciergeTelegram" label="Телеграм консьержа *" />
             <q-file v-model="uploadingImage" label="Выберите изображение" filled counter clearable />
             <div>
               <q-btn label="Изменить" type="submit" color="primary" :loading="isLoading" />
@@ -99,6 +108,7 @@ export default defineComponent({
     const applicationName = ref('')
     const welcomeText = ref('')
     const conciergePhone = ref('')
+    const conciergeTelegram = ref('')
     const uploadingImage = ref(null)
 
     const settings = ref({
@@ -106,6 +116,7 @@ export default defineComponent({
       welcome_text: '',
       concierge_phone: '',
       main_logo_url: '',
+      concierge_telegram: '',
     })
 
     const isLoading = ref(false)
@@ -114,7 +125,8 @@ export default defineComponent({
         settings.value.application_name &&
         settings.value.welcome_text &&
         settings.value.concierge_phone &&
-        settings.value.main_logo_url
+        settings.value.main_logo_url &&
+        settings.value.concierge_telegram
       )
     })
     const isSetAppSettingsModalVisible = ref(false)
@@ -125,6 +137,7 @@ export default defineComponent({
         applicationName.value = settings.value.application_name
         welcomeText.value = settings.value.welcome_text
         conciergePhone.value = settings.value.concierge_phone
+        conciergeTelegram.value = settings.value.concierge_telegram
         uploadingImage.value = null
         return (isChangeAppSettingsModalVisible.value = true)
       }
@@ -132,7 +145,13 @@ export default defineComponent({
     }
 
     const changeAppSettings = async () => {
-      if (!applicationName.value && !welcomeText.value && !conciergePhone.value && !uploadingImage.value)
+      if (
+        !applicationName.value &&
+        !welcomeText.value &&
+        !conciergePhone.value &&
+        !uploadingImage.value &&
+        !conciergeTelegram.value
+      )
         return
 
       const formData = new FormData()
@@ -140,6 +159,7 @@ export default defineComponent({
       if (welcomeText.value) formData.append('welcome_text', welcomeText.value)
       if (conciergePhone.value) formData.append('concierge_phone', conciergePhone.value)
       if (uploadingImage.value) formData.append('image', uploadingImage.value)
+      if (conciergeTelegram.value) formData.append('concierge_telegram', conciergeTelegram.value)
       try {
         isLoading.value = true
         const { data } = await Api.changeAppSettings(formData)
@@ -156,6 +176,7 @@ export default defineComponent({
       formData.append('application_name', settings.value.application_name)
       formData.append('welcome_text', settings.value.welcome_text)
       formData.append('concierge_phone', phone)
+      formData.append('concierge_telegram', settings.value.concierge_telegram)
       formData.append('image', uploadingImage.value)
 
       try {
@@ -178,6 +199,7 @@ export default defineComponent({
       applicationName,
       welcomeText,
       conciergePhone,
+      conciergeTelegram,
       isLoading,
       uploadingImage,
       isSetAppSettingsModalVisible,

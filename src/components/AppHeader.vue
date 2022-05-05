@@ -14,7 +14,9 @@
         <!--          <q-tooltip>Google Apps</q-tooltip>-->
         <!--        </q-btn>-->
         <q-btn round dense flat color="grey-8" icon="notifications">
-          <q-badge color="red" text-color="white" floating> 2 </q-badge>
+          <q-badge v-show="notificationsCount" color="red" text-color="white" floating>
+            {{ notificationsCount + messagesCount }}
+          </q-badge>
           <q-tooltip>Уведомления</q-tooltip>
         </q-btn>
         <q-btn @click="logout" round dense flat color="grey-8" icon="logout">
@@ -42,15 +44,25 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
+import { computed, defineComponent, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { ADMIN_ID, deleteUser, getUser } from 'src/utils/user.utils'
+import { ADMIN_ID, deleteUser, getUser, MANAGER_ID } from 'src/utils/user.utils'
+import { useStore } from 'vuex'
+import { useQuasar } from 'quasar'
 
 export default defineComponent({
   name: 'AppHeader',
   setup() {
+    const store = useStore()
+    const notificationsCount = computed(() => {
+      return store.state.unhandledOrdersCount
+    })
+    const messagesCount = computed(() => {
+      return store.state.unhandledMessagesCount
+    })
     const user = ref(getUser())
     const isAdmin = user.value.role?.id === ADMIN_ID
+    const isManager = user.value.role?.id === MANAGER_ID
     const router = useRouter()
     const showSidebar = ref(false)
     const toggleLeftDrawer = () => {
@@ -58,10 +70,13 @@ export default defineComponent({
     }
     const logout = () => {
       deleteUser()
+      store.commit('setUnhandledOrdersCount', 0)
       router.push({ name: 'auth.index' })
     }
 
     return {
+      notificationsCount,
+      messagesCount,
       user,
       showSidebar,
       toggleLeftDrawer,
@@ -71,12 +86,16 @@ export default defineComponent({
         { icon: 'settings', text: 'Настройки приложения', to: 'main.app-settings', show: isAdmin },
         { icon: 'web', text: 'Рекламные баннеры', to: 'main.ad-banners', show: isAdmin },
         { icon: 'description', text: 'Секции', to: 'main.sections', show: isAdmin },
-        { icon: 'campaign', text: 'Уведомления', to: 'main.notifications', show: true },
-        { icon: 'menu_book', text: 'Категории блюд', to: 'main.food-categories', show: isAdmin },
-        { icon: 'restaurant_menu', text: 'Блюда', to: 'main.foods', show: isAdmin },
-        { icon: 'view_stream', text: 'Категории сервисов отелья', to: 'main.hs-categories', show: isAdmin },
-        { icon: 'home_repair_service', text: 'Сервисы отелья', to: 'main.hs', show: isAdmin },
+        { icon: 'email', text: 'Сообщения', to: 'main.messages', show: true },
         { icon: 'format_list_numbered_rtl', text: 'Заказы', to: 'main.orders', show: true },
+        { icon: 'dashboard', text: 'Статусы заказов', to: 'main.order-statuses', show: isAdmin },
+        { icon: 'campaign', text: 'Уведомления', to: 'main.notifications', show: isAdmin || isManager },
+        { icon: 'menu_book', text: 'Категории блюд', to: 'main.food-categories', show: isAdmin || isManager },
+        { icon: 'restaurant_menu', text: 'Блюда', to: 'main.foods', show: isAdmin || isManager },
+        { icon: 'view_stream', text: 'Категории сервисов отелья', to: 'main.hs-categories', show: isAdmin || isManager },
+        { icon: 'home_repair_service', text: 'Сервисы отелья', to: 'main.hs', show: isAdmin || isManager },
+        { icon: 'receipt', text: 'Доп. услуги', to: 'main.ad-services', show: isAdmin || isManager },
+        { icon: 'assignment', text: 'Категории доп. услуг', to: 'main.ad-service-categories', show: isAdmin || isManager },
       ],
     }
   },

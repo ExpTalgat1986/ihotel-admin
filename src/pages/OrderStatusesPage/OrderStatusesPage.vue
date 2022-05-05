@@ -1,25 +1,17 @@
 <template>
   <q-page>
-    <h4 class="section-title q-mb-lg">Управление категориями сервисов отелья</h4>
+    <h4 class="section-title q-mb-lg">Управление статусами заказов</h4>
     <div class="text-right">
       <q-btn @click="openAddModal" color="primary" icon="add" label="Добавить" />
     </div>
     <div v-if="list.length" class="row items-start q-gutter-md q-pa-md">
-      <q-card v-for="item in list" :key="item.id" class="food-categories-card">
+      <q-card v-for="item in list" :key="item.id" class="notification-card">
         <q-card-section>
           <div class="row no-wrap">
             <div class="col">
               <div>
-                Название на казахском: <br />
-                <span class="text-weight-bold">{{ item.title_kz }}</span>
-              </div>
-              <div>
-                Название на русском: <br />
-                <span class="text-weight-bold">{{ item.title_ru }}</span>
-              </div>
-              <div>
-                Название на английском: <br />
-                <span class="text-weight-bold">{{ item.title_en }}</span>
+                Название: <br />
+                <span class="text-weight-bold">{{ item.title }}</span>
               </div>
             </div>
 
@@ -41,7 +33,7 @@
         </q-card-section>
       </q-card>
     </div>
-    <div v-else class="text-center text-subtitle1">Отсутствуют категории сервисов отелья</div>
+    <div v-else class="text-center text-subtitle1">Отсутствуют статусы заказов</div>
 
     <q-dialog v-model="isAddModalVisible">
       <q-card>
@@ -49,22 +41,8 @@
           <q-form @submit="addItem" class="q-gutter-md">
             <q-input
               filled
-              v-model="titleKZ"
-              label="Название на казахском *"
-              lazy-rules
-              :rules="[(val) => (val && val.length > 0) || 'Поле обязательное']"
-            />
-            <q-input
-              filled
-              v-model="titleRU"
-              label="Название на русском *"
-              lazy-rules
-              :rules="[(val) => (val && val.length > 0) || 'Поле обязательное']"
-            />
-            <q-input
-              filled
-              v-model="titleEN"
-              label="Название на английском *"
+              v-model="title"
+              label="Название"
               lazy-rules
               :rules="[(val) => (val && val.length > 0) || 'Поле обязательное']"
             />
@@ -80,9 +58,7 @@
       <q-card>
         <div class="q-pa-md" style="max-width: 400px; min-width: 400px">
           <q-form @submit="changeItem" class="q-gutter-md">
-            <q-input filled v-model="titleKZ" label="Название на казахском *" />
-            <q-input filled v-model="titleRU" label="Название на русском *" />
-            <q-input filled v-model="titleEN" label="Название на английском *" />
+            <q-input filled v-model="title" label="Название *" />
             <div>
               <q-btn label="Изменить" type="submit" color="primary" :loading="isLoading" />
             </div>
@@ -95,7 +71,7 @@
       <q-card>
         <q-card-section class="row items-center">
           <q-avatar icon="delete" color="negative" text-color="white" size="md" />
-          <span class="q-ml-sm">Вы действительно хотите удалить категорию?</span>
+          <span class="q-ml-sm">Вы действительно хотите удалить уведомление?</span>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -112,12 +88,11 @@ import { defineComponent, onMounted, ref } from 'vue'
 import { Api } from 'src/api'
 
 export default defineComponent({
-  name: 'HsCategories',
+  name: 'OrderStatusesPage',
   setup() {
     const list = ref([])
-    const titleKZ = ref('')
-    const titleRU = ref('')
-    const titleEN = ref('')
+    const title = ref('')
+
     const isLoading = ref(false)
     const pickedSectionId = ref(0)
     const isDeleteModalVisible = ref(false)
@@ -126,9 +101,7 @@ export default defineComponent({
 
     const resetFilledData = () => {
       pickedSectionId.value = 0
-      titleEN.value = ''
-      titleRU.value = ''
-      titleKZ.value = ''
+      title.value = ''
     }
 
     const openDeleteModal = (id) => {
@@ -140,9 +113,7 @@ export default defineComponent({
       resetFilledData()
       const item = list.value.find((el) => el.id === id)
       pickedSectionId.value = id
-      titleEN.value = item?.title_en || ''
-      titleRU.value = item?.title_ru || ''
-      titleKZ.value = item?.title_kz || ''
+      title.value = item?.title || ''
       isChangeModalVisible.value = true
     }
 
@@ -154,7 +125,7 @@ export default defineComponent({
     const deleteItem = async () => {
       try {
         isLoading.value = true
-        await Api.deleteHsCategory(pickedSectionId.value)
+        await Api.deleteOrderStatuses(pickedSectionId.value)
         list.value = list.value.filter((el) => el.id !== pickedSectionId.value)
         pickedSectionId.value = 0
         isDeleteModalVisible.value = false
@@ -165,12 +136,12 @@ export default defineComponent({
 
     const changeItem = async () => {
       const payload = {}
-      if (titleRU.value) payload.title_ru = titleRU.value
-      if (titleKZ.value) payload.title_kz = titleKZ.value
-      if (titleEN.value) payload.title_en = titleEN.value
+      if (title.value) payload.title = title.value
+      if (!Object.keys(payload).length) return
+
       try {
         isLoading.value = true
-        const { data } = await Api.changeHsCategory(payload, pickedSectionId.value)
+        const { data } = await Api.changeOrderStatuses(payload, pickedSectionId.value)
         const changedElementIdx = list.value.findIndex((el) => el.id === pickedSectionId.value)
         if (changedElementIdx !== -1) list.value.splice(changedElementIdx, 1, data)
         isChangeModalVisible.value = false
@@ -180,14 +151,9 @@ export default defineComponent({
     }
 
     const addItem = async () => {
-      const payload = {
-        title_ru: titleRU.value,
-        title_kz: titleKZ.value,
-        title_en: titleEN.value
-      }
       try {
         isLoading.value = true
-        const { data } = await Api.addHsCategory(payload)
+        const { data } = await Api.addOrderStatuses({ title: title.value })
         list.value.push(data)
         isAddModalVisible.value = false
       } finally {
@@ -196,15 +162,13 @@ export default defineComponent({
     }
 
     onMounted(async () => {
-      const { data } = await Api.getAllHsCategories()
+      const { data } = await Api.getAllOrderStatuses()
       list.value = data
     })
 
     return {
       list,
-      titleEN,
-      titleRU,
-      titleKZ,
+      title,
       isLoading,
       pickedSectionId,
       isDeleteModalVisible,
@@ -222,7 +186,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-.food-categories-card {
+.notification-card {
   width: 100%;
   max-width: 250px;
 }

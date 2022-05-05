@@ -138,10 +138,8 @@
               mask="#.##"
               fill-mask="0"
               reverse-fill-mask
-              lazy-rules
-              :rules="[(val) => (val && val > 0) || 'Поле обязательное']"
             />
-            <q-checkbox v-model="isAvailable" label="Блюдо в наличии?" />
+            <q-checkbox v-model="isAvailable" label="Сервис в наличии?" />
             <div>
               <q-btn label="Добавить" type="submit" color="primary" :loading="isLoading" />
             </div>
@@ -203,7 +201,7 @@ export default defineComponent({
     const descriptionKZ = ref('')
     const descriptionRU = ref('')
     const descriptionEN = ref('')
-    const price = ref('')
+    const price = ref('0.00')
     const isAvailable = ref(true)
     const selectedCategory = ref(null)
     const image = ref(null)
@@ -221,7 +219,7 @@ export default defineComponent({
       descriptionKZ.value = ''
       descriptionRU.value = ''
       descriptionEN.value = ''
-      price.value = ''
+      price.value = '0.00'
       isAvailable.value = true
       selectedCategory.value = null
       image.value = null
@@ -242,7 +240,7 @@ export default defineComponent({
       descriptionKZ.value = item?.description_kz || ''
       descriptionRU.value = item?.description_ru || ''
       descriptionEN.value = item?.description_en || ''
-      price.value = item?.price || ''
+      price.value = item?.price || '0.00'
       isAvailable.value = item?.is_available
       if (item?.category) {
         item.category.label = item.category.title_ru

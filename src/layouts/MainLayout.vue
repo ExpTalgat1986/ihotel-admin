@@ -8,11 +8,101 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, computed, onMounted, ref, watch, onBeforeUnmount } from 'vue'
 import AppHeader from 'components/AppHeader'
+import { useStore } from 'vuex'
+import { useQuasar } from 'quasar'
+import { Api } from 'src/api'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
   name: 'MainLayout',
   components: { AppHeader },
+  setup() {
+    const store = useStore()
+    const $q = useQuasar()
+    const router = useRouter()
+    const timerId = ref(null)
+    const notificationsCount = computed(() => {
+      return store.state.unhandledOrdersCount
+    })
+    const messagesCount = computed(() => {
+      return store.state.unhandledMessagesCount
+    })
+
+    watch(
+      notificationsCount,
+      async (newVal) => {
+        if (newVal) {
+          await router.push({ name: 'main.layout' })
+          showDialog()
+        }
+      },
+      { immediate: false },
+    )
+
+    watch(
+      messagesCount,
+      async (newVal) => {
+        if (newVal) {
+          await router.push({ name: 'main.layout' })
+          showDialogMsgDialog()
+        }
+      },
+      { immediate: false },
+    )
+
+    const showDialog = () => {
+      $q.dialog({
+        title: 'Новый заказ',
+        message: 'Поступил новый заказ, обработайте пожалуйста',
+        persistent: true,
+        dark: true,
+      })
+        .onOk(async () => {
+          await router.push({ name: 'main.orders', query: { page: 1 } })
+        })
+        .onOk(async () => {
+          await router.push({ name: 'main.orders', query: { page: 1 } })
+        })
+    }
+
+    const showDialogMsgDialog = () => {
+      $q.dialog({
+        title: 'Новый сообщение',
+        message: 'Поступило новое сообщение',
+        persistent: true,
+      })
+        .onOk(async () => {
+          await router.push({ name: 'main.messages', query: { page: 1 } })
+        })
+        .onOk(async () => {
+          await router.push({ name: 'main.messages', query: { page: 1 } })
+        })
+    }
+
+    const fetchUnhandledMessagesCount = async () => {
+      const { data: count } = await Api.getUnhandledMessagesCount()
+      store.commit('setUnhandledMessagesCount', count)
+    }
+
+    const fetchUnhandledOrdersCountAndShow = async () => {
+      const { data: count } = await Api.getUnhandledOrdersCount()
+      store.commit('setUnhandledOrdersCount', count)
+    }
+
+    onMounted(async () => {
+      await fetchUnhandledOrdersCountAndShow()
+      await fetchUnhandledMessagesCount()
+      timerId.value = setInterval(() => {
+        fetchUnhandledOrdersCountAndShow()
+        fetchUnhandledMessagesCount()
+      }, 10000)
+    })
+
+    onBeforeUnmount(() => {
+      clearInterval(timerId.value)
+    })
+  },
 })
 </script>

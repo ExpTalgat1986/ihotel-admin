@@ -1,6 +1,6 @@
 <template>
   <q-page>
-    <h4 class="section-title q-mb-lg">Управление категориями сервисов отелья</h4>
+    <h4 class="section-title q-mb-lg">Управление категориями дополнительных услуг</h4>
     <div class="text-right">
       <q-btn @click="openAddModal" color="primary" icon="add" label="Добавить" />
     </div>
@@ -41,7 +41,7 @@
         </q-card-section>
       </q-card>
     </div>
-    <div v-else class="text-center text-subtitle1">Отсутствуют категории сервисов отелья</div>
+    <div v-else class="text-center text-subtitle1">Отсутствуют категории доп. услуг</div>
 
     <q-dialog v-model="isAddModalVisible">
       <q-card>
@@ -112,7 +112,7 @@ import { defineComponent, onMounted, ref } from 'vue'
 import { Api } from 'src/api'
 
 export default defineComponent({
-  name: 'HsCategories',
+  name: 'AdServiceCategoriesPage',
   setup() {
     const list = ref([])
     const titleKZ = ref('')
@@ -154,7 +154,7 @@ export default defineComponent({
     const deleteItem = async () => {
       try {
         isLoading.value = true
-        await Api.deleteHsCategory(pickedSectionId.value)
+        await Api.deleteAdServiceCategory(pickedSectionId.value)
         list.value = list.value.filter((el) => el.id !== pickedSectionId.value)
         pickedSectionId.value = 0
         isDeleteModalVisible.value = false
@@ -170,7 +170,7 @@ export default defineComponent({
       if (titleEN.value) payload.title_en = titleEN.value
       try {
         isLoading.value = true
-        const { data } = await Api.changeHsCategory(payload, pickedSectionId.value)
+        const { data } = await Api.changeAdServiceCategory(payload, pickedSectionId.value)
         const changedElementIdx = list.value.findIndex((el) => el.id === pickedSectionId.value)
         if (changedElementIdx !== -1) list.value.splice(changedElementIdx, 1, data)
         isChangeModalVisible.value = false
@@ -187,7 +187,7 @@ export default defineComponent({
       }
       try {
         isLoading.value = true
-        const { data } = await Api.addHsCategory(payload)
+        const { data } = await Api.addAdServiceCategory(payload)
         list.value.push(data)
         isAddModalVisible.value = false
       } finally {
@@ -196,7 +196,7 @@ export default defineComponent({
     }
 
     onMounted(async () => {
-      const { data } = await Api.getAllHsCategories()
+      const { data } = await Api.getAllAdServiceCategories()
       list.value = data
     })
 

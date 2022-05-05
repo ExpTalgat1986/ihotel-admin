@@ -5,20 +5,21 @@
       <q-btn @click="openAddModal" color="primary" icon="add" label="Добавить" />
     </div>
     <div v-if="list.length" class="row items-start q-gutter-md q-pa-md">
-      <q-card v-for="(item) in list" :key="item.id" class="food-categories-card">
-        <img :src="item.image_url" alt="pic" />
-
+      <q-card v-for="item in list" :key="item.id" class="food-categories-card">
         <q-card-section>
           <div class="row no-wrap">
             <div class="col">
               <div>
-                Название на казахском: <br> <span class="text-weight-bold">{{ item.title_kz }}</span>
+                Название на казахском: <br />
+                <span class="text-weight-bold">{{ item.title_kz }}</span>
               </div>
               <div>
-                Название на русском: <br> <span class="text-weight-bold">{{ item.title_ru }}</span>
+                Название на русском: <br />
+                <span class="text-weight-bold">{{ item.title_ru }}</span>
               </div>
               <div>
-                Название на английском: <br> <span class="text-weight-bold">{{ item.title_en }}</span>
+                Название на английском: <br />
+                <span class="text-weight-bold">{{ item.title_en }}</span>
               </div>
             </div>
 
@@ -67,15 +68,6 @@
               lazy-rules
               :rules="[(val) => (val && val.length > 0) || 'Поле обязательное']"
             />
-            <q-file
-              v-model="image"
-              label="Выберите изображение"
-              filled
-              counter
-              lazy-rules
-              clearable
-              :rules="[(val) => val || 'Поле обязательное']"
-            />
             <div>
               <q-btn label="Добавить" type="submit" color="primary" :loading="isLoading" />
             </div>
@@ -91,7 +83,6 @@
             <q-input filled v-model="titleKZ" label="Название на казахском *" />
             <q-input filled v-model="titleRU" label="Название на русском *" />
             <q-input filled v-model="titleEN" label="Название на английском *" />
-            <q-file v-model="image" label="Выберите изображение" filled counter clearable />
             <div>
               <q-btn label="Изменить" type="submit" color="primary" :loading="isLoading" />
             </div>
@@ -127,7 +118,6 @@ export default defineComponent({
     const titleKZ = ref('')
     const titleRU = ref('')
     const titleEN = ref('')
-    const image = ref(null)
     const isLoading = ref(false)
     const pickedSectionId = ref(0)
     const isDeleteModalVisible = ref(false)
@@ -139,7 +129,6 @@ export default defineComponent({
       titleEN.value = ''
       titleRU.value = ''
       titleKZ.value = ''
-      image.value = null
     }
 
     const openDeleteModal = (id) => {
@@ -175,14 +164,13 @@ export default defineComponent({
     }
 
     const changeItem = async () => {
-      const formData = new FormData()
-      if (titleRU.value) formData.append('title_ru', titleRU.value)
-      if (titleKZ.value) formData.append('title_kz', titleKZ.value)
-      if (titleEN.value) formData.append('title_en', titleEN.value)
-      if (image.value) formData.append('image', image.value)
+      const payload = {}
+      if (titleRU.value) payload.title_ru = titleRU.value
+      if (titleKZ.value) payload.title_kz = titleKZ.value
+      if (titleEN.value) payload.title_en = titleEN.value
       try {
         isLoading.value = true
-        const { data } = await Api.changeFoodCategory(formData, pickedSectionId.value)
+        const { data } = await Api.changeFoodCategory(payload, pickedSectionId.value)
         const changedElementIdx = list.value.findIndex((el) => el.id === pickedSectionId.value)
         if (changedElementIdx !== -1) list.value.splice(changedElementIdx, 1, data)
         isChangeModalVisible.value = false
@@ -192,14 +180,15 @@ export default defineComponent({
     }
 
     const addItem = async () => {
-      const formData = new FormData()
-      formData.append('title_ru', titleRU.value)
-      formData.append('title_kz', titleKZ.value)
-      formData.append('title_en', titleEN.value)
-      formData.append('image', image.value)
+      const payload = {
+        title_ru: titleRU.value,
+        title_kz: titleKZ.value,
+        title_en: titleEN.value
+      }
+
       try {
         isLoading.value = true
-        const { data } = await Api.addFoodCategory(formData)
+        const { data } = await Api.addFoodCategory(payload)
         list.value.push(data)
         isAddModalVisible.value = false
       } finally {
@@ -217,7 +206,6 @@ export default defineComponent({
       titleEN,
       titleRU,
       titleKZ,
-      image,
       isLoading,
       pickedSectionId,
       isDeleteModalVisible,
