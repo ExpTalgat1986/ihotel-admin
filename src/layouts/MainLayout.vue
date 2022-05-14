@@ -33,7 +33,7 @@ export default defineComponent({
     watch(
       notificationsCount,
       async (newVal) => {
-        if (newVal) {
+        if (newVal && newVal === 1) {
           await router.push({ name: 'main.layout' })
           showDialog()
         }
@@ -44,7 +44,7 @@ export default defineComponent({
     watch(
       messagesCount,
       async (newVal) => {
-        if (newVal) {
+        if (newVal && newVal === 1) {
           await router.push({ name: 'main.layout' })
           showDialogMsgDialog()
         }
@@ -97,7 +97,7 @@ export default defineComponent({
       timerId.value = setInterval(() => {
         fetchUnhandledOrdersCountAndShow()
         fetchUnhandledMessagesCount()
-      }, 10000)
+      }, 15000)
     })
 
     onBeforeUnmount(() => {
