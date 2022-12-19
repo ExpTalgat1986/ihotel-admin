@@ -42,7 +42,6 @@ export default defineComponent({
       async (newVal) => {
         if (newVal && newVal === 1) {
           await router.push({ name: 'main.layout' })
-          toggleSound()
           showDialog()
         }
       },
@@ -54,7 +53,6 @@ export default defineComponent({
       async (newVal) => {
         if (newVal && newVal === 1) {
           await router.push({ name: 'main.layout' })
-          toggleSound()
           showDialogMsgDialog()
         }
       },
@@ -62,7 +60,15 @@ export default defineComponent({
     )
 
     const toggleSound = () => {
-      audio.value.play()
+      audio.value.play().catch((e) => {
+        window.addEventListener(
+          'click',
+          () => {
+            audio.value.play()
+          },
+          { once: true },
+        )
+      })
     }
 
     const showDialog = () => {
@@ -96,11 +102,17 @@ export default defineComponent({
 
     const fetchUnhandledMessagesCount = async () => {
       const { data: count } = await Api.getUnhandledMessagesCount()
+      if (count && count > messagesCount.value) {
+        toggleSound()
+      }
       store.commit('setUnhandledMessagesCount', count)
     }
 
     const fetchUnhandledOrdersCountAndShow = async () => {
       const { data: count } = await Api.getUnhandledOrdersCount()
+      if (count && count > notificationsCount.value) {
+        toggleSound()
+      }
       store.commit('setUnhandledOrdersCount', count)
     }
 
