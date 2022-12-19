@@ -4,6 +4,11 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+    <div class="music-player" style="display: none">
+      <audio ref="audio" preload="auto" controls>
+        <source src="~assets/music/notification.mp3" />
+      </audio>
+    </div>
   </q-layout>
 </template>
 
@@ -23,6 +28,8 @@ export default defineComponent({
     const $q = useQuasar()
     const router = useRouter()
     const timerId = ref(null)
+    const audio = ref(null)
+
     const notificationsCount = computed(() => {
       return store.state.unhandledOrdersCount
     })
@@ -35,6 +42,7 @@ export default defineComponent({
       async (newVal) => {
         if (newVal && newVal === 1) {
           await router.push({ name: 'main.layout' })
+          toggleSound()
           showDialog()
         }
       },
@@ -46,11 +54,16 @@ export default defineComponent({
       async (newVal) => {
         if (newVal && newVal === 1) {
           await router.push({ name: 'main.layout' })
+          toggleSound()
           showDialogMsgDialog()
         }
       },
       { immediate: false },
     )
+
+    const toggleSound = () => {
+      audio.value.play()
+    }
 
     const showDialog = () => {
       $q.dialog({
@@ -103,6 +116,10 @@ export default defineComponent({
     onBeforeUnmount(() => {
       clearInterval(timerId.value)
     })
+
+    return {
+      audio,
+    }
   },
 })
 </script>
